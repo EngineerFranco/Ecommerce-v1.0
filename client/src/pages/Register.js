@@ -1,8 +1,10 @@
 import React from 'react'
 import { FaFaceGrinTongueWink, FaFaceTired } from 'react-icons/fa6'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import login from '../assets/products/login.gif';
 import imageToBase64 from '../helpers/imageToBase64';
+import summaryAPI from '../common';
+import { toast } from 'react-toastify';
 
 const Register = () => {
 
@@ -29,9 +31,33 @@ const Register = () => {
     }
 
     console.log("Data: ", data)
+    const navigate = useNavigate()
 
-    const handeSubmit = (e) => {
+    const handeSubmit = async(e) => {
         e.preventDefault()
+
+        if(data.password === data.confirmPassword){
+          const dataResponse = await fetch(summaryAPI.register.url,{
+            method : summaryAPI.register.method,
+            headers :{
+              "content-type" : "application/json"
+            },
+            body: JSON.stringify(data)
+          })
+  
+          const dataResult = await dataResponse.json()
+          if(dataResult.success){
+            toast.success(dataResult.message)
+            navigate("/login")
+          } else{
+            toast.error(dataResult.message)
+          }
+  
+        } else{
+          console.log(`Please check password and confirm password`)
+          toast(`Please check password and confirm password`)
+        }
+    
     }
 
     const handleUploadPic = async (e) => {

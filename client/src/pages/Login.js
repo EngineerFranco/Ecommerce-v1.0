@@ -2,7 +2,9 @@ import React from 'react'
 import login from '../assets/products/login.gif'
 import { FaFaceTired } from "react-icons/fa6";
 import { FaFaceGrinTongueWink } from "react-icons/fa6";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import summaryAPI from '../common';
+import { toast } from 'react-toastify';
 
 const Login = () => {
     const [showPassword, setShowPassword] = React.useState(false);
@@ -22,10 +24,27 @@ const Login = () => {
         })
     }
 
-    console.log("Data: ", data)
-
-    const handeSubmit = (e) => {
+    const navigate = useNavigate()
+    const handeSubmit = async(e) => {
         e.preventDefault()
+        console.log("BODY: ", data)
+        const dataResponse = await fetch(summaryAPI.login.url,{
+            method : summaryAPI.login.method,
+            credentials: "include",
+            headers : {
+                "content-type" : "application/json"
+            },
+            body : JSON.stringify(data)
+        })
+
+        const dataResult = await dataResponse.json()
+        
+        if(dataResult.success){
+          toast.success(dataResult.message)
+          navigate("/")
+        } else{
+          toast.error(dataResult.message)
+        }
     }
 
   return (
