@@ -1,10 +1,11 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import login from '../assets/products/login.gif'
 import { FaFaceTired } from "react-icons/fa6";
 import { FaFaceGrinTongueWink } from "react-icons/fa6";
 import { Link, useNavigate } from 'react-router-dom';
 import summaryAPI from '../common';
 import { toast } from 'react-toastify';
+import Context from '../context';
 
 const Login = () => {
     const [showPassword, setShowPassword] = React.useState(false);
@@ -25,8 +26,12 @@ const Login = () => {
     }
 
     const navigate = useNavigate()
+    const {fetchUserDetails} = useContext(Context)
+    console.log(fetchUserDetails)
+
     const handeSubmit = async(e) => {
         e.preventDefault()
+        
         console.log("BODY: ", data)
         const dataResponse = await fetch(summaryAPI.login.url,{
             method : summaryAPI.login.method,
@@ -40,12 +45,14 @@ const Login = () => {
         const dataResult = await dataResponse.json()
         
         if(dataResult.success){
-          toast.success(dataResult.message)
-          navigate("/")
-        } else{
-          toast.error(dataResult.message)
+            toast.success(dataResult.message)
+            navigate("/")
+            fetchUserDetails()
         }
-    }
+        if(dataResult.error){
+            toast.error(dataResult.message)
+        }
+}
 
   return (
     <section id='login'>

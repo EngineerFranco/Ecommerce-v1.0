@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 async function authToken(req, res, next) {
     try {
         const token = req.cookies?.token;
-        console.log("TOKEN: ", token)
+        console.log("Client Token: ", token)
         if (!token) {
-            return res.status(403).json({ 
+            return res.status(200).json({ 
                 message : "User not Login",
                 error : true,
                 success : false
@@ -15,12 +15,12 @@ async function authToken(req, res, next) {
         // Verify the token
         jwt.verify(token, process.env.T_KEY, (error, decoded) => {
             if (error) {
-                console.log("ERROR: ", error.message)
+                console.log("Invalid Token: ", error.message)
             }
-            console.log("Decoded: ", decoded)
+            console.log("Decoded Token: ", decoded)
             
-            req.user = req.user || {};
-            req.user.id = decoded?._id;
+            // req.user = req.user || {};
+            req.userID = decoded?._id;
             next();
         });
     } catch (error) {

@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken"
 async function userLoginController(req, res){
     try {
         const {email, password} = req.body
-        console.log("REQ BODY: ", req.body)
+        console.log("LOGIN REQ BODY: ", req.body)
         if(!email){
             throw new Error(`Please provide valid email:`)
         }
@@ -16,22 +16,29 @@ async function userLoginController(req, res){
         const user = await userModel.findOne({email})
     
         if(!user){
-            throw new Error(`User not found`)
+            return res.status(404).json({
+                message: "User not found",
+                error: true,
+                success: false
+            })
         }
-
+        // verify password
         const checkPassword = await bcrypt.compare(password, user.password)
-        console.log(`Check password ${checkPassword}`)
+        console.log(`isPasswordValid: ${checkPassword}`)
 
         if(checkPassword){
+            // generate token
             const tokenData = {
                 _id : user._id,
                 email : user.email
             }
             const token = jwt.sign(tokenData, process.env.T_KEY, {expiresIn: '8h'})
+            console.log("Token: ", token)
             const tokenOption = {
                 httpOnly : true,
                 secure : true
             }
+            // set token as cookie and store in the client browser
             res.cookie("token", token, tokenOption).status(200).json({
                 message : "Login successfully!",
                 data : token,
@@ -40,7 +47,11 @@ async function userLoginController(req, res){
             })
 
         }else{
-            throw new Error(`Invalid email or password`)
+            return res.status(401).json({
+                message : "Invalid password",
+                error: true,
+                success: false
+            })
         }
     } catch (error) {
         console.log(error.message)

@@ -3,9 +3,12 @@ import bcrypt from 'bcrypt'
 
 async function userRegisterController(req, res){
     try {
+        console.log("USER REGISTER CONTROLLER")
+        console.log(" REQGISTER REQ BODY: ", req.body)
+
         const {email, password, name} = req.body
-        console.log("REQ BODY: ", req.body)
         const user = await userModel.findOne({email})
+
         if(user){
             throw new Error(`User already exists`)
         }
@@ -28,11 +31,10 @@ async function userRegisterController(req, res){
         }
         
         const payload = {
-            email: email,
+            ...req.body,
             password: hashPassword,
-            name: name,
             role: "General"
-        }
+        }   
 
         const userData = new userModel(payload)
         const saveUser = await userData.save()
